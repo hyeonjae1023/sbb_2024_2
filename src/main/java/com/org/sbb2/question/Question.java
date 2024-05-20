@@ -1,5 +1,6 @@
-package com.org.sbb2;
+package com.org.sbb2.question;
 
+import com.org.sbb2.answer.Answer;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
