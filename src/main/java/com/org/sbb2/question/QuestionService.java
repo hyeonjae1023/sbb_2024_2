@@ -19,7 +19,7 @@ public class QuestionService {
 
     public Question getQuestion(Integer id) {
         Optional<Question> question = this.questionRepository.findById(id);
-        if(question.isEmpty()) {
+        if(question.isPresent()) {
             return question.get();
         } else {
             throw new DataNotFoundException("question not found");
