@@ -3,11 +3,14 @@ package com.org.sbb2.question;
 import com.org.sbb2.answer.AnswerForm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequestMapping("/question") // URL 프리픽스. 컨트롤러의 성격에 맞게 사용 여부 결정
@@ -18,11 +21,14 @@ public class QuestionController {
     private final QuestionService questionService;
 
     @GetMapping("/list")
-    public String list(Model model) {
+    public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page) {
         //Model: 자바 클래스와 템플릿 간의 연결 고리 역할.
         //Model 객체에 값을 담아 두면 템플릿에서 그 값을 사용할 수 있다.
-        List<Question> questionList = this.questionService.getList();
-        model.addAttribute("questionList", questionList);
+        // http://localhost:8090/question/list?page=0 와 같이 GET방식으로 요청된 URL에서 page값을 가져오기 위해 list메서드의 매개변수로
+        // @RequestParam(value = "page", defaultValue = "0") int page가 추가.
+        // 스프링부트 첫 페이지 번호는 0이므로 기본값을 0으로 설정
+        Page<Question> paging = this.questionService.getList(page);
+        model.addAttribute("paging", paging);
         return "question_list";
     }
     @GetMapping(value = "/detail/{id}")
