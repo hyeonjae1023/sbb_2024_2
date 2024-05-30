@@ -25,14 +25,16 @@ public class QuestionController {
     private final UserService userService;
 
     @GetMapping("/list")
-    public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page) {
+    public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
+                       @RequestParam(value = "kw", defaultValue = "") String kw) {
         //Model: 자바 클래스와 템플릿 간의 연결 고리 역할.
         //Model 객체에 값을 담아 두면 템플릿에서 그 값을 사용할 수 있다.
         // http://localhost:8090/question/list?page=0 와 같이 GET방식으로 요청된 URL에서 page값을 가져오기 위해 list메서드의 매개변수로
         // @RequestParam(value = "page", defaultValue = "0") int page가 추가.
         // 스프링부트 첫 페이지 번호는 0이므로 기본값을 0으로 설정
-        Page<Question> paging = this.questionService.getList(page);
+        Page<Question> paging = this.questionService.getList(page, kw);
         model.addAttribute("paging", paging);
+        model.addAttribute("kw", kw);
         return "question_list";
     }
     @GetMapping(value = "/detail/{id}")
