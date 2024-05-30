@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -35,4 +36,8 @@ public class Question {
 
     @ManyToOne
     private SiteUser author;
+
+    @ManyToMany
+    Set<SiteUser> voter;
+    //Set 설정 이유: voter속성값이 서로 중복되지 않도록 하기 위해.
 }
