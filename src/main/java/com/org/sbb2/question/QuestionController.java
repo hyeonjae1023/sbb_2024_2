@@ -1,6 +1,8 @@
 package com.org.sbb2.question;
 
+import com.org.sbb2.answer.Answer;
 import com.org.sbb2.answer.AnswerForm;
+import com.org.sbb2.answer.AnswerService;
 import com.org.sbb2.user.SiteUser;
 import com.org.sbb2.user.UserService;
 import jakarta.validation.Valid;
@@ -22,6 +24,7 @@ import java.security.Principal;
 public class QuestionController {
 
     private final QuestionService questionService;
+    private final AnswerService answerService;
     private final UserService userService;
 
     @GetMapping("/list")
@@ -38,9 +41,12 @@ public class QuestionController {
         return "question_list";
     }
     @GetMapping(value = "/detail/{id}")
-    public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm) {
+    public String detail(Model model, @RequestParam(value = "page",defaultValue = "0") int page,
+                         @PathVariable("id") Integer id, AnswerForm answerForm) {
         Question question = this.questionService.getQuestion(id);
+        Page<Answer> paging = this.answerService.getAnswers(question, page);
         model.addAttribute("question", question);
+        model.addAttribute("paging", paging);
         return "question_detail";
     }
     @PreAuthorize("isAuthenticated()")
