@@ -8,6 +8,7 @@ import com.org.sbb2.user.SiteUser;
 import com.org.sbb2.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,10 +39,19 @@ public class CommentController {
         SiteUser siteUser = this.userService.getUser(principal.getName());
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("answer", answer);
+//            model.addAttribute("answer", answer);
+            Question question = answer.getQuestion();  // 다시 질문 객체를 가져옴
+            Page<Answer> paging = this.answerService.getAnswers(question, 0); // 현재 페이지 재로딩을 위해
+
+            model.addAttribute("question", question);  // 모델에 질문 다시 추가
+            model.addAttribute("paging", paging);      // 페이징 정보 다시 추가
+            model.addAttribute("answerForm", new AnswerForm());  // 필요한 경우 새 폼도 추가
+            model.addAttribute("commentForm", commentForm);  // 기존 입력된 폼 데이터를 유지
             return "question_detail";
         }
         Comment comment = this.commentService.create(answer, commentForm.getContent(), siteUser);
         return String.format("redirect:/question/detail/%s#comment_%s", answer.getQuestion().getId(),comment.getId());
     }
+
+//    public String modifyComment()
 }

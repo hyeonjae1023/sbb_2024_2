@@ -1,11 +1,13 @@
 package com.org.sbb2.answer;
 
+import com.org.sbb2.comment.CommentForm;
 import com.org.sbb2.question.Question;
 import com.org.sbb2.question.QuestionService;
 import com.org.sbb2.user.SiteUser;
 import com.org.sbb2.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -28,7 +30,7 @@ public class AnswerController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/create/{id}")
     public String createAnswer(Model model, @PathVariable("id") Integer id,
-                               @Valid AnswerForm answerForm, BindingResult bindingResult, Principal principal) {
+                               @Valid AnswerForm answerForm, BindingResult bindingResult, Principal principal, CommentForm commentForm) {
         //@RequestParam(value="content"): 작성한 템플릿(question_detail)에서 답변으로 입력한 내용을 얻으려고 추가
         //템플릿 답변 내용에 해당하는 <textarea>의 name 속성명이 content이므로 여기서도 변수명을 content로 사용.
         //Principal: 현재 로그인한 사용자의 정보 제공.
@@ -36,7 +38,9 @@ public class AnswerController {
         SiteUser siteUser = this.userService.getUser(principal.getName());
 
         if (bindingResult.hasErrors()) {
+            Page<Answer> paging = this.answerService.getAnswers(question, 0); // 현재 페이지로 0을 넣음
             model.addAttribute("question", question);
+            model.addAttribute("paging", paging);
             return "question_detail";
         }
         Answer answer = this.answerService.create(question, answerForm.getContent(), siteUser);

@@ -154,13 +154,26 @@
             document.getElementById('page').value = this.dataset.page;
     });
 });
-        // 댓글 폼 토글 스크립트
+document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.comment-toggle').forEach(function(button) {
         button.addEventListener('click', function() {
             const commentFormId = 'comment-form-' + this.dataset.answerId;
             const commentForm = document.getElementById(commentFormId);
-            commentForm.style.display = commentForm.style.display === 'none' ? 'block' : 'none';
+             console.log('Has errors:', commentForm.classList.contains('has-errors'));  // 로그 출력
+            // 에러가 있는 경우 항상 열린 상태 유지
+            if (commentForm.classList.contains('has-errors')) {
+                commentForm.style.display = 'block';
+            } else {
+                // 에러가 없는 경우 토글 동작
+                commentForm.style.display = commentForm.style.display === 'none' ? 'block' : 'none';
+            }
         });
     });
+
+    // 페이지 로드 시 에러가 있는 폼 자동으로 열기
+    document.querySelectorAll('.has-errors').forEach(function(form) {
+        form.style.display = 'block';
+    });
+});
 </script>
 </html>
