@@ -3,6 +3,7 @@ package com.org.sbb2.question;
 import com.org.sbb2.answer.Answer;
 import com.org.sbb2.answer.AnswerForm;
 import com.org.sbb2.answer.AnswerService;
+import com.org.sbb2.comment.CommentForm;
 import com.org.sbb2.user.SiteUser;
 import com.org.sbb2.user.UserService;
 import jakarta.validation.Valid;
@@ -42,7 +43,7 @@ public class QuestionController {
     }
     @GetMapping(value = "/detail/{id}")
     public String detail(Model model, @RequestParam(value = "page",defaultValue = "0") int page,
-                         @PathVariable("id") Integer id, AnswerForm answerForm) {
+                         @PathVariable("id") Integer id, AnswerForm answerForm, CommentForm commentForm) {
         Question question = this.questionService.getQuestion(id);
         Page<Answer> paging = this.answerService.getAnswers(question, page);
         model.addAttribute("question", question);

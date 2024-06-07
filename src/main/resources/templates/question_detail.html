@@ -55,6 +55,8 @@
                 </div>
             </div>
             <div class="my-3">
+                <!--"댓글 달기" 버튼 추가 후 평상시엔 안보이다가 해당 버튼을 클릭하면 작성 폼이 나오게-->
+                <a href="javascript:void(0);" class="comment-toggle btn btn-sm btn-outline-secondary" data-answer-id="${answer.id}">댓글 달기</a>
                 <a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary"
                    th:data-uri="@{|/answer/vote/${answer.id}|}">
                     추천
@@ -68,6 +70,32 @@
                    class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
                    th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author.username}"
                    th:text="삭제"></a>
+            </div>
+            <div class="card my-3" th:each="comment : ${answer.commentList}">
+                <a th:id="|comment_${comment.id}|"></a>
+                <div class="card-body">
+                <div class="card-text" th:utext="${@commonUtil.markdown(comment.content)}"></div>
+                <div class="d-flex justify-content-end">
+                    <div th:if="${comment.modifyDate != null}" class="badge bg-light text-dark p-2 text-start mx-3">
+                        <div class="mb-2">modified at</div>
+                        <div th:text="${#temporals.format(comment.modifyDate, 'yyyy-MM-dd HH:mm')}"></div>
+                    </div>
+                    <div class="badge bg-light text-dark p-2 text-start">
+                        <div class="mb-2">
+                            <span th:if="${comment.author != null}" th:text="${comment.author.username}"></span>
+                        </div>
+                        <div th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div id="comment-form-${answer.id}" style="display:none;">
+            <form th:action="@{|/comment/create/${answer.id}|}" th:object="${commentForm}" method="post" class="my-3">
+                <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+                <textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control" rows="10"></textarea>
+                <textarea sec:authorize="isAuthenticated()" th:field="*{content}" class="form-control" rows="10"></textarea>
+                <input type="submit" value="답변등록" class="btn btn-primary my-2">
+            </form>
             </div>
         </div>
     </div>
@@ -126,5 +154,13 @@
             document.getElementById('page').value = this.dataset.page;
     });
 });
+        // 댓글 폼 토글 스크립트
+    document.querySelectorAll('.comment-toggle').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const commentFormId = 'comment-form-' + this.dataset.answerId;
+            const commentForm = document.getElementById(commentFormId);
+            commentForm.style.display = commentForm.style.display === 'none' ? 'block' : 'none';
+        });
+    });
 </script>
 </html>

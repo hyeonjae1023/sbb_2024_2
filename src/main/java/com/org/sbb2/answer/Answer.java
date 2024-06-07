@@ -1,5 +1,6 @@
 package com.org.sbb2.answer;
 
+import com.org.sbb2.comment.Comment;
 import com.org.sbb2.question.Question;
 import com.org.sbb2.user.SiteUser;
 import jakarta.persistence.*;
@@ -7,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -28,6 +30,9 @@ public class Answer {
     //답변은(Many) 질문은 One이 된다.
     //Answer 엔티티의 question 속성과 Question 엔티티가 서로 연결. (DB에선 외래키 관계 생성)
     private Question question;
+
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.REMOVE)
+    private List<Comment> commentList;
 
     @ManyToOne
     private SiteUser author;
