@@ -28,15 +28,24 @@ public class QuestionController {
     private final AnswerService answerService;
     private final UserService userService;
 
-    @GetMapping("/list")
-    public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
+    @GetMapping("/list/{type}")
+    public String list(Model model,@PathVariable String type, @RequestParam(value = "page", defaultValue = "0") int page,
                        @RequestParam(value = "kw", defaultValue = "") String kw) {
         //Model: 자바 클래스와 템플릿 간의 연결 고리 역할.
         //Model 객체에 값을 담아 두면 템플릿에서 그 값을 사용할 수 있다.
         // http://localhost:8090/question/list?page=0 와 같이 GET방식으로 요청된 URL에서 page값을 가져오기 위해 list메서드의 매개변수로
         // @RequestParam(value = "page", defaultValue = "0") int page가 추가.
         // 스프링부트 첫 페이지 번호는 0이므로 기본값을 0으로 설정
-        Page<Question> paging = this.questionService.getList(page, kw);
+
+        int category = switch (type) {
+            case "qna" -> QuestionEnum.QNA.getStatus();
+            case "free" -> QuestionEnum.FREE.getStatus();
+            case "bug" -> QuestionEnum.BUG.getStatus();
+            default -> throw new RuntimeException("올바르지 않은 접근입니다.");
+        };
+
+        model.addAttribute("boardName", category);
+        Page<Question> paging = this.questionService.getList(category, page, kw);
         model.addAttribute("paging", paging);
         model.addAttribute("kw", kw);
         return "question_list";
@@ -51,31 +60,52 @@ public class QuestionController {
         return "question_detail";
     }
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/create")
-    public String questionCreate(QuestionForm questionForm) {
+    @GetMapping("/create/{type}")
+    public String questionCreate(@PathVariable String type, QuestionForm questionForm, Model model) {
+        switch (type) {
+            case "qna" -> model.addAttribute("boardName","질문과답변 작성");
+            case "free" -> model.addAttribute("boardName","자유게시판 작성");
+            case "b/ug" -> model.addAttribute("boardName","버그및건의 작성");
+            default -> throw new RuntimeException("올바르지 않은 접근입니다.");
+        }
         return "question_form";
     }
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/create")
-    public String questionCreate(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal) {
+    @PostMapping("/create/{type}")
+    public String questionCreate(@Valid QuestionForm questionForm, @PathVariable String type,
+                                 BindingResult bindingResult, Principal principal) {
         //@Valid: QuestionFrom의 @NotEmpty, @Size 등으로 설정한 검증 기능이 동작.
         //BindingResult: @Valid 애너테이션으로 검증이 수행된 결과를 의미하는 객체
         //BindingResult 매개변수는 항상 @Valid 뒤에 위치. 위치가 정확하지 않으면 @Valid값만 적용되어 입력값 검증 실패시 400 오류 호출
+
         if(bindingResult.hasErrors()) {
             return "question_form";
         }
+
+        int category = switch (type) {
+            case "qna" -> QuestionEnum.QNA.getStatus();
+            case "free" -> QuestionEnum.FREE.getStatus();
+            case "bug" -> QuestionEnum.BUG.getStatus();
+            default -> throw new RuntimeException("올바르지 않은 접근입니다.");
+        };
         SiteUser siteUser = this.userService.getUser(principal.getName());
-        this.questionService.create(questionForm.getSubject(), questionForm.getContent(),siteUser);
-        return "redirect:/question/list"; //질문 저장 후 질문 목록으로 이동
+        this.questionService.create(questionForm.getSubject(), questionForm.getContent(),siteUser, category);
+        return "redirect:/question/list/%s".formatted(type); //질문 저장 후 질문 목록으로 이동
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/modify/{id}")
-    public String questionModify(QuestionForm questionForm, @PathVariable("id") Integer id, Principal principal) {
+    public String questionModify(QuestionForm questionForm, @PathVariable("id") Integer id, Principal principal, Model model) {
 
         Question question = this.questionService.getQuestion(id);
         if (!question.getAuthor().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+        }
+        switch (question.getCategoryAsEnum()) {
+            case QNA -> model.addAttribute("boardName", "질문과답변 수정");
+            case FREE -> model.addAttribute("boardName", "자유게시판 수정");
+            case BUG -> model.addAttribute("boardName", "버그및건의 수정");
+            default -> throw new RuntimeException("올바르지 않은 접근입니다.");
         }
         questionForm.setSubject(question.getSubject());
         questionForm.setContent(question.getContent());

@@ -74,7 +74,7 @@ public class CommentController {
             return "comment_form";
         }
         Comment comment = this.commentService.createAnswerComment(answer, commentForm.getContent(), user);
-        return String.format("redirect:/question/detail/%s", comment.getAnswer().getQuestion().getId());
+        return String.format("redirect:/question/detail/%s", comment.getQuestionId());
     }
 
     @PreAuthorize("isAuthenticated()")

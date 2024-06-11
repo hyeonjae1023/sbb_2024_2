@@ -44,4 +44,19 @@ public class Question {
     @ManyToMany
     Set<SiteUser> voter;
     //Set 설정 이유: voter속성값이 서로 중복되지 않도록 하기 위해.
+
+    private int category;
+
+    public QuestionEnum getCategoryAsEnum() {
+        switch(this.category) {
+            case 0:
+                return QuestionEnum.QNA;
+            case 1:
+                return QuestionEnum.FREE;
+            case 2:
+                return QuestionEnum.BUG;
+            default:
+                throw new RuntimeException("올바르지 않은 접근입니다.");
+        }
+    }
 }
