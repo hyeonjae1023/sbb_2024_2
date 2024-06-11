@@ -32,6 +32,26 @@
                    th:if="${question.author != null and #authentication.getPrincipal().getUsername() == question.author.username}"
                    th:text="삭제"></a>
             </div>
+            <!-- 질문 댓글 Start -->
+            <div class="mt-3" th:if="${not #lists.isEmpty(question.commentList)}">
+                <div th:each="comment,index : ${question.commentList}" class="comment py-2 text-muted">
+                    <span style="white-space: pre-line;" th:text="${comment.content}"></span>
+                    <span th:if="${comment.modifyDate != null}"
+                          th:text="| - ${comment.author.username}, ${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')} (수정: ${#temporals.format(comment.modifyDate, 'yyyy-MM-dd HH:mm')})|"></span>
+                    <span th:if="${comment.modifyDate == null}"
+                          th:text="| - ${comment.author.username}, ${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}|"></span>
+                    <a sec:authorize="isAuthenticated()"
+                       th:if="${#authentication.getPrincipal().getUsername() == comment.author.username}"
+                       th:href="@{|/comment/modify/${comment.id}|}" class="small">수정</a>,
+                    <a sec:authorize="isAuthenticated()"
+                       th:if="${#authentication.getPrincipal().getUsername() == comment.author.username}"
+                       href="javascript:void(0);" class="small delete" th:data-uri="@{|/comment/delete/${comment.id}|}">삭제</a>
+                </div>
+            </div>
+            <div>
+                <a th:href="@{|/comment/create/question/${question.id}|}" class="small"><small>댓글 추가 ..</small></a>
+            </div>
+            <!-- 질문 댓글 End -->
         </div>
     </div>
     <!-- 답변의 갯수 표시 -->
@@ -55,8 +75,6 @@
                 </div>
             </div>
             <div class="my-3">
-                <!--"댓글 달기" 버튼 추가 후 평상시엔 안보이다가 해당 버튼을 클릭하면 작성 폼이 나오게-->
-                <a href="javascript:void(0);" class="comment-toggle btn btn-sm btn-outline-secondary" data-answer-id="${answer.id}">댓글 달기</a>
                 <a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary"
                    th:data-uri="@{|/answer/vote/${answer.id}|}">
                     추천
@@ -71,32 +89,24 @@
                    th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author.username}"
                    th:text="삭제"></a>
             </div>
-            <div class="card my-3" th:each="comment : ${answer.commentList}">
-                <a th:id="|comment_${comment.id}|"></a>
-                <div class="card-body">
-                <div class="card-text" th:utext="${@commonUtil.markdown(comment.content)}"></div>
-                <div class="d-flex justify-content-end">
-                    <div th:if="${comment.modifyDate != null}" class="badge bg-light text-dark p-2 text-start mx-3">
-                        <div class="mb-2">modified at</div>
-                        <div th:text="${#temporals.format(comment.modifyDate, 'yyyy-MM-dd HH:mm')}"></div>
-                    </div>
-                    <div class="badge bg-light text-dark p-2 text-start">
-                        <div class="mb-2">
-                            <span th:if="${comment.author != null}" th:text="${comment.author.username}"></span>
-                        </div>
-                        <div th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></div>
-                    </div>
-                </div>
-                </div>
-            </div>
-            <div id="comment-form-${answer.id}" style="display:none;">
-            <form th:action="@{|/comment/create/${answer.id}|}" th:object="${commentForm}" method="post" class="my-3">
-                <div th:replace="~{form_errors :: formErrorsFragment}"></div>
-                <textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control" rows="10"></textarea>
-                <textarea sec:authorize="isAuthenticated()" th:field="*{content}" class="form-control" rows="10"></textarea>
-                <input type="submit" value="답변등록" class="btn btn-primary my-2">
-            </form>
-            </div>
+<!--            <div class="card my-3" th:each="comment : ${answer.commentList}">-->
+<!--                <a th:id="|comment_${comment.id}|"></a>-->
+<!--                <div class="card-body">-->
+<!--                <div class="card-text" th:utext="${@commonUtil.markdown(comment.content)}"></div>-->
+<!--                <div class="d-flex justify-content-end">-->
+<!--                    <div th:if="${comment.modifyDate != null}" class="badge bg-light text-dark p-2 text-start mx-3">-->
+<!--                        <div class="mb-2">modified at</div>-->
+<!--                        <div th:text="${#temporals.format(comment.modifyDate, 'yyyy-MM-dd HH:mm')}"></div>-->
+<!--                    </div>-->
+<!--                    <div class="badge bg-light text-dark p-2 text-start">-->
+<!--                        <div class="mb-2">-->
+<!--                            <span th:if="${comment.author != null}" th:text="${comment.author.username}"></span>-->
+<!--                        </div>-->
+<!--                        <div th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                </div>-->
+<!--            </div>-->
         </div>
     </div>
     <!-- 답변 반복 끝  -->
@@ -132,48 +142,27 @@
     </form>
 </div>
 <script layout:fragment="script" type='text/javascript'>
-    const delete_elements = document.getElementsByClassName("delete");
-    Array.from(delete_elements).forEach(function(element) {
-        element.addEventListener('click', function() {
-            if(confirm("정말로 삭제하시겠습니까?")) {
-                location.href = this.dataset.uri;
-            };
-        });
-    });
-    const recommend_elements = document.getElementsByClassName("recommend");
-    Array.from(recommend_elements).forEach(function(element) {
-        element.addEventListener('click', function() {
-            if(confirm("정말로 추천하시겠습니까?")) {
-                location.href = this.dataset.uri;
-            };
-        });
-    });
-    const page_elements = document.getElementsByClassName("page-link");
-    Array.from(page_elements).forEach(function(element) {
-        element.addEventListener('click', function() {
-            document.getElementById('page').value = this.dataset.page;
-    });
-});
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.comment-toggle').forEach(function(button) {
-        button.addEventListener('click', function() {
-            const commentFormId = 'comment-form-' + this.dataset.answerId;
-            const commentForm = document.getElementById(commentFormId);
-             console.log('Has errors:', commentForm.classList.contains('has-errors'));  // 로그 출력
-            // 에러가 있는 경우 항상 열린 상태 유지
-            if (commentForm.classList.contains('has-errors')) {
-                commentForm.style.display = 'block';
-            } else {
-                // 에러가 없는 경우 토글 동작
-                commentForm.style.display = commentForm.style.display === 'none' ? 'block' : 'none';
-            }
-        });
-    });
-
-    // 페이지 로드 시 에러가 있는 폼 자동으로 열기
-    document.querySelectorAll('.has-errors').forEach(function(form) {
-        form.style.display = 'block';
-    });
-});
+                    const delete_elements = document.getElementsByClassName("delete");
+                    Array.from(delete_elements).forEach(function(element) {
+                        element.addEventListener('click', function() {
+                            if(confirm("정말로 삭제하시겠습니까?")) {
+                                location.href = this.dataset.uri;
+                            };
+                        });
+                    });
+                    const recommend_elements = document.getElementsByClassName("recommend");
+                    Array.from(recommend_elements).forEach(function(element) {
+                        element.addEventListener('click', function() {
+                            if(confirm("정말로 추천하시겠습니까?")) {
+                                location.href = this.dataset.uri;
+                            };
+                        });
+                    });
+                    const page_elements = document.getElementsByClassName("page-link");
+                    Array.from(page_elements).forEach(function(element) {
+                        element.addEventListener('click', function() {
+                            document.getElementById('page').value = this.dataset.page;
+                    });
+                });
 </script>
 </html>

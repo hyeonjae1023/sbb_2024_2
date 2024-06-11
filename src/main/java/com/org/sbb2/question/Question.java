@@ -1,6 +1,7 @@
 package com.org.sbb2.question;
 
 import com.org.sbb2.answer.Answer;
+import com.org.sbb2.comment.Comment;
 import com.org.sbb2.user.SiteUser;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -33,6 +34,9 @@ public class Question {
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.REMOVE)
     private List<Answer> answerList;
+
+    @OneToMany(mappedBy = "question")
+    private List<Comment> commentList;
 
     @ManyToOne
     private SiteUser author;

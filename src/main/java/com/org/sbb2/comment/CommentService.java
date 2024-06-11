@@ -22,23 +22,29 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
 
-    public Comment create(Answer answer, String content, SiteUser author) {
+    public Comment create(Question question, String content, SiteUser author) {
         Comment comment = new Comment();
         comment.setContent(content);
-        comment.setAnswer(answer);
         comment.setAuthor(author);
+        comment.setQuestion(question);
         comment.setCreateDate(LocalDateTime.now());
         this.commentRepository.save(comment);
         return comment;
     }
 
-    public Comment getComment(Integer id) {
-        Optional<Comment> comment = this.commentRepository.findById(id);
-        if (comment.isPresent()) {
-            return comment.get();
-        } else {
-            throw new DataNotFoundException("comment not found");
-        }
+    public Optional<Comment> getComment(Integer id) {
+        return this.commentRepository.findById(id);
+    }
+
+    public Comment modify(Comment comment, String content) {
+        comment.setContent(content);
+        comment.setModifyDate(LocalDateTime.now());
+        comment = this.commentRepository.save(comment);
+        return comment;
+    }
+
+    public void delete(Comment comment) {
+        this.commentRepository.delete(comment);
     }
 
 }

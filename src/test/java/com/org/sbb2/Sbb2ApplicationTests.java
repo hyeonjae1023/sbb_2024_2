@@ -27,7 +27,7 @@ class Sbb2ApplicationTests {
 //		q2.setContent("id는 자동으로 생성되나요?");
 //		q2.setCreateDate(LocalDateTime.now());
 //		this.questionRepository.save(q2);
-		for(int i = 1; i<=300; i++) {
+		for(int i = 1; i<=100; i++) {
 			String subject = String.format("it is text data:[%03d]", i);
 			String content = "no content";
 			this.questionService.create(subject, content, null);
