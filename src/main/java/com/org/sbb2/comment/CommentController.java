@@ -35,6 +35,8 @@ public class CommentController {
     private  UserService userService;
     @Autowired
     private  CommentService commentService;
+    @Autowired
+    private AnswerService answerService;
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping(value = "/create/question/{id}")
@@ -54,6 +56,25 @@ public class CommentController {
             }
             Comment c = this.commentService.create(question, commentForm.getContent(), user);
             return String.format("redirect:/question/detail/%s", c.getQuestionId());
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping(value = "/create/answer/{id}")
+    public String createAnswerComment(CommentForm commentForm) {
+        return "comment_form";
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping(value = "/create/answer/{id}")
+    public String createAnswerComment(@PathVariable("id") Integer id, @Valid CommentForm commentForm,
+                                      BindingResult bindingResult, Principal principal) {
+        Answer answer = this.answerService.getAnswer(id);
+        SiteUser user = this.userService.getUser(principal.getName());
+        if (bindingResult.hasErrors()) {
+            return "comment_form";
+        }
+        Comment comment = this.commentService.createAnswerComment(answer, commentForm.getContent(), user);
+        return String.format("redirect:/question/detail/%s", comment.getAnswer().getQuestion().getId());
     }
 
     @PreAuthorize("isAuthenticated()")

@@ -32,6 +32,16 @@ public class CommentService {
         return comment;
     }
 
+    public Comment createAnswerComment(Answer answer, String content, SiteUser author) {
+        Comment comment = new Comment();
+        comment.setContent(content);
+        comment.setAuthor(author);
+        comment.setAnswer(answer);
+        comment.setCreateDate(LocalDateTime.now());
+        this.commentRepository.save(comment);
+        return comment;
+    }
+
     public Optional<Comment> getComment(Integer id) {
         return this.commentRepository.findById(id);
     }
