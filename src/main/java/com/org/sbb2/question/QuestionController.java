@@ -65,7 +65,7 @@ public class QuestionController {
         switch (type) {
             case "qna" -> model.addAttribute("boardName","질문과답변 작성");
             case "free" -> model.addAttribute("boardName","자유게시판 작성");
-            case "b/ug" -> model.addAttribute("boardName","버그및건의 작성");
+            case "bug" -> model.addAttribute("boardName","버그및건의 작성");
             default -> throw new RuntimeException("올바르지 않은 접근입니다.");
         }
         return "question_form";
