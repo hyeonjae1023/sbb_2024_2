@@ -58,6 +58,13 @@ public class QuestionService {
         return this.questionRepository.findAll(spec, pageable);
     }
 
+    public Page<Question> getCurrentListByUser(String username, int page) {
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(Sort.Order.desc("createDate"));
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
+        return questionRepository.findByAuthor_Username(username, pageable);
+    }
+
     public Question getQuestion(Integer id) {
         Optional<Question> question = this.questionRepository.findById(id);
         if(question.isPresent()) {

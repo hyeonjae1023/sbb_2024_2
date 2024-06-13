@@ -31,6 +31,13 @@ public class AnswerService {
         return answer;
     }
 
+    public Page<Answer> getCurrentListByUser(String username, int page) {
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(Sort.Order.desc("createDate"));
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
+        return answerRepository.findByAuthor_Username(username, pageable);
+    }
+
     public Page<Answer> getAnswers(Question question, int page) {
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(Sort.Order.desc("createDate"));
