@@ -8,9 +8,9 @@ public enum QuestionEnum {
     FREE(1),
     BUG(2);
 
-    private int status;
+    private Integer status;
 
-    QuestionEnum(int status) {
+    QuestionEnum(Integer status) {
         this.status = status;
     }
 }

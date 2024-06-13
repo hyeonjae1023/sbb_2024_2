@@ -45,7 +45,10 @@ public class Question {
     Set<SiteUser> voter;
     //Set 설정 이유: voter속성값이 서로 중복되지 않도록 하기 위해.
 
-    private int category;
+    private Integer category;
+
+    @Column(columnDefinition = "integer default 0", nullable = false)
+    private Integer hit;
 
     public QuestionEnum getCategoryAsEnum() {
         switch(this.category) {
