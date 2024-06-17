@@ -5,18 +5,18 @@ import com.org.sbb2.EmailException;
 import com.org.sbb2.TempPasswordForm;
 import com.org.sbb2.answer.AnswerService;
 import com.org.sbb2.comment.CommentService;
-import com.org.sbb2.question.Question;
-import com.org.sbb2.question.QuestionEnum;
 import com.org.sbb2.question.QuestionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
 
@@ -48,7 +48,7 @@ public class UserController {
             return "signup_form";
         }
         try {
-            userService.create(userCreateForm.getUsername(), userCreateForm.getEmail(), userCreateForm.getPassword1());
+            userService.join(userCreateForm.getUsername(),userCreateForm.getPassword1(), userCreateForm.getEmail(),userCreateForm.getNickname(),"");
         } catch (DataIntegrityViolationException e) {
             //DataIntegrityViolationException: 사용자id 또는 이메일 주소가 이미 존재할 경우 발생하는 예외
             e.printStackTrace();

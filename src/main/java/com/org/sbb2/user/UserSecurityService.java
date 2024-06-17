@@ -27,7 +27,7 @@ public class UserSecurityService implements UserDetailsService {
         // User 생성자에는 사용자명, 비밀번호, 권한 리스트 전달
         // loadUserByUsername 메서드에 의해 리턴된 User 객체의 비밀번호가 사용자로부터 입력받은 비밀번호와 일치하는지 내부적으로 검사
 
-        Optional<SiteUser> _siteUser = this.userRepository.findByusername(username);
+        Optional<SiteUser> _siteUser = this.userRepository.findByUsername(username);
         if (_siteUser.isEmpty()) {
             throw new UsernameNotFoundException("사용자를 찾을 수 없습니다.");
         }

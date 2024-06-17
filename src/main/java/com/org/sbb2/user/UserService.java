@@ -21,17 +21,23 @@ public class UserService {
     private final CommonUtil commonUtil;
     private final TempPasswordMail tempPasswordMail;
 
-    public SiteUser create(String username, String email, String password) {
-        SiteUser user = new SiteUser();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
-        this.userRepository.save(user);
-        return user;
+    public SiteUser join(String username, String password, String email, String nickname, String profileImgUrl) {
+        SiteUser user = SiteUser
+                .builder()
+                .username(username)
+                .email(email)
+                .password(password)
+                .nickname(nickname)
+                .profileImgUrl(profileImgUrl)
+                .build();
+
+        System.out.println("HI");
+
+        return userRepository.save(user);
     }
 
     public SiteUser getUser(String username) {
-        Optional<SiteUser> siteUser = this.userRepository.findByusername(username);
+        Optional<SiteUser> siteUser = this.userRepository.findByUsername(username);
         if(siteUser.isPresent()) {
             return siteUser.get();
         } else {
@@ -47,5 +53,18 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(tempPassword));
         userRepository.save(user);
         tempPasswordMail.sendSimpleMessage(email, tempPassword);
+    }
+
+    @Transactional
+    public SiteUser whenSocialLogin(String providerTypeCode, String username, String email, String nickname, String profileImgUrl) {
+        Optional<SiteUser> opUser = findByUsername(username);
+
+        if(opUser.isPresent()) return opUser.get();
+
+        return join(username,"", email, nickname, profileImgUrl);
+    }
+
+    public Optional<SiteUser> findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 }
