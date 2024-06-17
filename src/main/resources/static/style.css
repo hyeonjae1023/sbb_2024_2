@@ -2,3 +2,6 @@
     border-top:dotted 1px #ddd;
     font-size:0.7em;
 }
+.list-group-item a {
+    color: black; /* 기본 텍스트 색상을 검정으로 설정 */
+}
