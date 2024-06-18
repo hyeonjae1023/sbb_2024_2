@@ -1,3 +1,7 @@
+# Custom secret configuration
+application-secret.yml
+
+# Default IntelliJ IDEA and other IDEs
 HELP.md
 .gradle
 build/
@@ -36,4 +40,3 @@ out/
 ### VS Code ###
 .vscode/
 
-application-secret.yml
